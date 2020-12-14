@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  web:
+    image: eu.gcr.io/rdx-net-public-registry/apache2.4-nodejs15:${IMAGE_TAG:-latest}
+    build:
+      context: .
+    ports:
+      - '80:80'
+    volumes:
+      - type: bind
+        source: ./volumes/a-shared
+        target: /a/shared

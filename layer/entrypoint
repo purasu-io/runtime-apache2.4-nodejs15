@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+apache_pid=""
+app_pid=""
+tail_pid=""
+
+_term() {
+  if [[ -n "${apache_pid}" ]]; then
+    _out "Shutdown Apache"
+    kill -WINCH "${apache_pid}" || true
+    wait "${apache_pid}"
+    _out "Apache exited"
+  fi
+
+  if [[ -n "${app_pid}" ]]; then
+    _out "Shutdown App"
+    kill "${app_pid}" || true
+    wait "${app_pid}"
+    _out "App exited"
+  fi
+
+  if [[ -n "${tail_pid}" ]]; then
+    _out "Shutdown tail"
+    kill "${tail_pid}" || true
+    wait "${tail_pid}"
+    _out "tail exited"
+  fi
+
+  _out "Bye"
+  exit 0
+}
+
+_out() {
+  echo "Entrypoint: $*"
+}
+
+trap "_term" TERM INT
+
+_out "BEGIN"
+
+_out "Start Apache"
+apachectl -DFOREGROUND &
+apache_pid=$!
+
+_out "Start app"
+APP_ENTRYPOINT="${APP_ENTRYPOINT:-/a/shared/app/_entrypoint}"
+
+while true; do
+  if [[ -f "${APP_ENTRYPOINT}" ]]; then
+    break
+  else
+    echo "Waiting for '${APP_ENTRYPOINT}' to become available .."
+    sleep 3
+  fi
+done
+
+chmod +x "${APP_ENTRYPOINT}"
+
+"${APP_ENTRYPOINT}" &
+app_pid=$!
+
+_out "Waiting for signals .."
+tail -f /dev/null &
+tail_pid=$!
+wait ${tail_pid}

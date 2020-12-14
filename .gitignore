@@ -1,0 +1,5 @@
+/volumes/
+!.keep
+!/volumes/.keep
+!/volumes/a-shared/.keep
+!/volumes/a-shared/public/.keep

@@ -1,0 +1,21 @@
+# envvars - default environment variables for apache2ctl
+
+unset HOME
+
+export APACHE_RUN_USER="${APACHE_RUN_USER}"
+export APACHE_RUN_GROUP="${APACHE_RUN_GROUP}"
+
+export APACHE_PID_FILE=/run/apache2/apache2.pid
+export APACHE_RUN_DIR=/run/apache2
+export APACHE_LOCK_DIR=/run/lock/apache2
+export APACHE_LOG_DIR=/var/log/apache2
+
+export LANG=C
+## Uncomment the following line to use the system default locale instead:
+#. /etc/default/locale
+
+export LANG
+
+## If you need a higher file descriptor limit, uncomment and adjust the
+## following line (default is 8192):
+#APACHE_ULIMIT_MAX_FILES='ulimit -n 65536'
