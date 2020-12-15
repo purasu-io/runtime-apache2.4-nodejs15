@@ -113,6 +113,8 @@ RUN set -ex \
 
 ## /COPYPASTE
 
+COPY --from=mattipaksula/reflex:sha-0238059 /* /usr/bin/
+
 COPY layer /
 
 RUN echo 'web:x:10000:' >>/etc/group

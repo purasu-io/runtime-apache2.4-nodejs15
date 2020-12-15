@@ -38,14 +38,16 @@ _out() {
 
 trap "_term" TERM INT
 
-_out "BEGIN"
-
 _out "Start Apache"
 apachectl -DFOREGROUND &
 apache_pid=$!
 
 _out "Start app"
 APP_ENTRYPOINT="${APP_ENTRYPOINT:-/a/shared/app/_entrypoint}"
+APP_ROOT="${APP_ROOT:-/a/shared/app}"
+DEV_MODE="${DEV_MODE:-yes}"
+_out "APP_ENTRYPOINT: ${APP_ENTRYPOINT}"
+_out "APP_ROOT: ${APP_ROOT}"
 
 while true; do
   if [[ -f "${APP_ENTRYPOINT}" ]]; then
@@ -58,7 +60,15 @@ done
 
 chmod +x "${APP_ENTRYPOINT}"
 
-"${APP_ENTRYPOINT}" &
+pushd "${APP_ROOT}"
+cmd_prefix=""
+
+if [[ "${DEV_MODE:-}" = "yes" ]]; then
+  cmd_prefix="reflex -v -t 3s -s reflex-wrapper "
+fi
+(
+  exec $cmd_prefix "${APP_ENTRYPOINT}"
+) >/dev/stdout 2>&1 &
 app_pid=$!
 
 _out "Waiting for signals .."
