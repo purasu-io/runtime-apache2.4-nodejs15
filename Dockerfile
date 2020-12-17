@@ -119,6 +119,7 @@ COPY layer /
 
 RUN echo 'web:x:10000:' >>/etc/group
 RUN echo 'web:x:10000:10000:Web User:/home/user:/bin/bash' >>/etc/passwd
+RUN install -d /home/user -o 10000 -g 10000 -m 0700
 
 RUN set -eux; \
   setcap cap_net_bind_service=+ep /usr/sbin/apache2; \
@@ -142,5 +143,7 @@ ENV APACHE_RUN_USER="web"
 ENV APACHE_RUN_GROUP="web"
 
 ENV APP_ROOT="/a/shared/app"
+
+WORKDIR /a
 
 ENTRYPOINT [ "/entrypoint" ]
