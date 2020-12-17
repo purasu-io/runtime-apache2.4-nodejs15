@@ -7,6 +7,8 @@ services:
       context: .
     ports:
       - '80:80'
+    environment:
+      DEV_MODE: "yes"
     volumes:
       - type: bind
         source: ./volumes/a-shared

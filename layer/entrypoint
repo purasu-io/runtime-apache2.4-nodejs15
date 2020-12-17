@@ -3,7 +3,7 @@
 set -euo pipefail
 
 apache_pid=""
-app_pid=""
+app_entrypoint_pid=""
 tail_pid=""
 
 _term() {
@@ -14,10 +14,10 @@ _term() {
     _out "Apache exited"
   fi
 
-  if [[ -n "${app_pid}" ]]; then
+  if [[ -n "${app_entrypoint_pid}" ]]; then
     _out "Shutdown App"
-    kill "${app_pid}" || true
-    wait "${app_pid}"
+    kill "${app_entrypoint_pid}" || true
+    wait "${app_entrypoint_pid}"
     _out "App exited"
   fi
 
@@ -33,43 +33,71 @@ _term() {
 }
 
 _out() {
-  echo "Entrypoint: $*"
+  echo "⚡️ $*"
 }
 
 trap "_term" TERM INT
+
+_exec_dev_app() {
+  local reflex_conf="${APP_ROOT}/_reflex.conf"
+  local default_reflex_conf="/etc/default/reflex.conf"
+
+  while true; do
+    if [[ -f "${reflex_conf}" ]]; then
+      _out "Found '${reflex_conf}'"
+      break
+    else
+      _out "Initialize default reflex.conf .."
+      cp -v "${default_reflex_conf}" "${reflex_conf}"
+
+      sleep 0.5
+    fi
+  done
+
+  exec reflex --verbose=true -c "${reflex_conf}"
+}
+
+_init_entrypoint() {
+  local default_app_entrypoint="/etc/default/entrypoint"
+
+  while true; do
+    if [[ -f "${APP_ENTRYPOINT}" ]]; then
+      _out "Found '${APP_ENTRYPOINT}'"
+      chmod +x "${APP_ENTRYPOINT}"
+
+      break
+    else
+      _out "Initialize default entrypoint .."
+      cp -v "${default_app_entrypoint}" "${APP_ENTRYPOINT}"
+
+      sleep 0.5
+    fi
+  done
+}
 
 _out "Start Apache"
 apachectl -DFOREGROUND &
 apache_pid=$!
 
-_out "Start app"
-APP_ENTRYPOINT="${APP_ENTRYPOINT:-/a/shared/app/_entrypoint}"
-APP_ROOT="${APP_ROOT:-/a/shared/app}"
-DEV_MODE="${DEV_MODE:-yes}"
-_out "APP_ENTRYPOINT: ${APP_ENTRYPOINT}"
+_out "Init app"
+APP_ROOT="${APP_ROOT:-"/a/shared/app"}"
+APP_ENTRYPOINT="${APP_ROOT}/_entrypoint"
 _out "APP_ROOT: ${APP_ROOT}"
+_out "APP_ENTRYPOINT: ${APP_ENTRYPOINT}"
+_init_entrypoint
 
-while true; do
-  if [[ -f "${APP_ENTRYPOINT}" ]]; then
-    break
-  else
-    echo "Waiting for '${APP_ENTRYPOINT}' to become available .."
-    sleep 3
-  fi
-done
+_out "Start app"
+>/dev/null pushd "${APP_ROOT}"
 
-chmod +x "${APP_ENTRYPOINT}"
-
-pushd "${APP_ROOT}"
-cmd_prefix=""
-
-if [[ "${DEV_MODE:-}" = "yes" ]]; then
-  cmd_prefix="reflex -v -t 3s -s reflex-wrapper "
-fi
 (
-  exec $cmd_prefix "${APP_ENTRYPOINT}"
+  if [[ "${DEV_MODE:-}" = "yes" ]]; then
+    _exec_dev_app
+  else
+    # shellcheck disable=SC2086
+    exec ${APP_ENTRYPOINT}
+  fi
 ) >/dev/stdout 2>&1 &
-app_pid=$!
+app_entrypoint_pid=$!
 
 _out "Waiting for signals .."
 tail -f /dev/null &
