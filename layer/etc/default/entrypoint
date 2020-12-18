@@ -1,3 +1,14 @@
 #!/usr/bin/env bash
 
+CWD="$(pwd)"
+
+while true; do
+  if [[ -f index.js ]]; then
+    break
+  else
+    echo "$0 - Waiting for '${CWD}/index.js' to become available .."
+    sleep 1
+  fi
+done
+
 exec node index.js
