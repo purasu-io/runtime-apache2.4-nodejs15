@@ -9,11 +9,11 @@ http.createServer(function (request, response) {
    });
 
    if (request.url == "/") {
-      response.end('Hello from Node.js - <a href="/cpu">heat the cpu</a>\n');
+      response.end('Hello from Node.js - <a href="/cpu">heat the cpu</a> - <a href="/assets/">static assets</a>\n');
    } else if (request.url == "/cpu") {
       response.write("Start CPU BURN.<br>\n");
       for (let i=0; i<1000000000; i++) {
-         if (i % 10000000 == 0) {
+         if (i % 100000000 == 0) {
             response.write(`Incremental load: ${i}<br>\n`);
          }
       }
