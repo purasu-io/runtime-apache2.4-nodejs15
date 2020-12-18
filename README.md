@@ -5,6 +5,13 @@
 Copy example Node.js application to `volumes/a-shared/app`
 * `cp -R example/cpu-burner/* volumes/a-shared/app`
 
+## Usage
+
+* `docker-compose up`
+  * Use `docker-compose up --build --force-recreate` to apply changes to the Docker image
+
+* `curl localhost:80` (Node.js)
+* `curl localhost:80/assets/` (Apache)
 
 ## Configuration
 
@@ -19,11 +26,4 @@ Copy example Node.js application to `volumes/a-shared/app`
   on code changes. Also `yarn install` is run if package.json is changed.
   * Default reflex.conf is copied from `/etc/default` to `/a/shared/app/_reflex.conf`
     if one doesn't exist at start time.
-
-## Usage
-
-* `docker-compose up`
-  * Use `docker-compose up --build --force-recreate` when needed
-
-* `curl localhost:80` (Node.js)
-* `curl localhost:80/assets/` (Apache)
+»
