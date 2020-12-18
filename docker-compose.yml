@@ -13,3 +13,8 @@ services:
       - type: bind
         source: ./volumes/a-shared
         target: /a/shared
+
+networks:
+  default:
+    external:
+      name: purasu-local

@@ -8,6 +8,7 @@ Copy example Node.js application to `volumes/a-shared/app`
 ## Usage
 
 * `docker-compose up`
+  * Create local network if needed: `docker network create purasu-local`
   * Use `docker-compose up --build --force-recreate` to apply changes to the Docker image
 
 * `curl localhost:80` (Node.js)
