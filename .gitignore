@@ -3,3 +3,4 @@
 !/volumes/.keep
 !/volumes/a-shared/.keep
 !/volumes/a-shared/public/.keep
+!/volumes/a-shared/app/.keep
